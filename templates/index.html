@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Sentiment Analysis - BERT</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 Movie Sentiment Analyzer</h1>
+            <p>Analyze audience reactions to upcoming movies</p>
+        </div>
+
+        <form method="POST" class="form-container" onsubmit="showLoading()">
+            <div class="input-group">
+                <label for="comment">🎭 Enter Movie Comment:</label>
+                <textarea name="comment" id="comment"
+                    placeholder="Example: The trailer looks incredible! Can't wait for the premiere 🍿"
+                    required></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                🔍 Analyze Sentiment
+            </button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Processing your comment...</p>
+        </div>
+
+        {% if prediction %}
+        <div class="result-container">
+            <div class="result-card 
+                {% if prediction == 'Excited' %}result-excited
+                {% elif prediction == 'Not Excited' %}result-not-excited
+                {% elif prediction == 'Irrelevant' %}result-irrelevant
+                {% else %}result-neutral{% endif %}">
+
+                <div class="result-title">
+                    {% if prediction == 'Excited' %}
+                    🤩 Excited
+                    {% elif prediction == 'Not Excited' %}
+                    😞 Not Excited
+                    {% elif prediction == 'Irrelevant' %}
+                    ❓ Irrelevant
+                    {% else %}
+                    😐 Neutral
+                    {% endif %}
+                </div>
+
+                <div class="result-details">
+                    <div class="detail-row">
+                        <span class="detail-label">📌 Prediction:</span>
+                        <span class="detail-value">{{ prediction }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="examples">
+            <h3>🎯 Sample Comments:</h3>
+            <div class="example-tags">
+                <span class="example-tag"
+                    onclick="fillExample('The trailer looks absolutely phenomenal! Counting down the days! 🎥')">
+                    Positive reaction
+                </span>
+                <span class="example-tag"
+                    onclick="fillExample('This seems like another generic superhero movie, nothing special')">
+                    Negative reaction
+                </span>
+                <span class="example-tag" onclick="fillExample('I guess it\'s okay, but nothing special.')">
+                    Neutral Opinion
+                </span>
+                <span class="example-tag"
+                    onclick="fillExample('This film is categorized as a psychological thriller.')">
+                    Neutral Information 1
+                </span>
+                <span class="example-tag"
+                    onclick="fillExample('This film is based on a novel published a few years ago.')">
+                    Neutral Information 2
+                </span>
+                <span class="example-tag" onclick="fillExample('I saw the trailer on YouTube earlier today.')">
+                    Neutral Observation
+                </span>
+                <span class="example-tag"
+                    onclick="fillExample('The cast lineup is stellar! Especially excited for the lead actor ✨')">
+                    Cast appreciation
+                </span>
+                <span class="example-tag"
+                    onclick="fillExample('The director\'s last film was terrible, not expecting much')">
+                    Director concern
+                </span>
+                <span class="example-tag"
+                    onclick="fillExample('The cinematography in the trailer alone deserves awards')">
+                    Technical praise
+                </span>
+                <span class="example-tag"
+                    onclick="fillExample('The sequel we\'ve been waiting for! Hope it lives up to the first one')">
+                    Sequel expectations
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-fill examples
+        function fillExample(text) {
+            document.getElementById('comment').value = text;
+            document.getElementById('comment').focus();
+        }
+
+        // Show loading indicator
+        function showLoading() {
+            document.getElementById('loading').classList.add('show');
+        }
+
+        // Auto-resize textarea
+        const textarea = document.getElementById('comment');
+        textarea.addEventListener('input', function () {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+
+        // Hide loading on page load
+        window.addEventListener('load', function () {
+            document.getElementById('loading').classList.remove('show');
+        });
+
+        // Input validation
+        textarea.addEventListener('input', function () {
+            // Character limit (500)
+            if (this.value.length > 500) {
+                this.value = this.value.substring(0, 500);
+            }
+
+            // Visual feedback for movie-related content
+            const movieKeywords = ['movie', 'film', 'trailer', 'actor', 'director', 'cinema', 'watch', 'sequel', 'plot'];
+            const hasMovieContext = movieKeywords.some(keyword =>
+                this.value.toLowerCase().includes(keyword));
+
+            if (this.value.length > 10 && !hasMovieContext) {
+                this.style.borderColor = '#FFA500';
+            } else {
+                this.style.borderColor = '';
+            }
+        });
+    </script>
+</body>
+</html>
